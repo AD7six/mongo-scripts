@@ -17,15 +17,15 @@ while (processed < total) {
 	while (cCursor.hasNext()) {
 		Row = cCursor.next();
 
-        print( "updating " + Row._id);
-        db[collection].update(
-            { _id: Row._id },
-            { $set: {
-                }
-            }
-        );
+		print( "updating " + Row._id);
+		db[collection].update(
+			{ _id: Row._id },
+			{ $set: {
+				}
+			}
+		);
 
-        conditions['_id'] = { $gt: Row._id };
+		conditions['_id'] = { $gt: Row._id };
 	}
 	processed += step;
 	print(processed + " " + collection + " processed");
