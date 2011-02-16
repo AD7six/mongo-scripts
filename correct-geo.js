@@ -4,7 +4,7 @@
  * If you've accidentally saved your geo data as not-floats, this is the script for you
  */
 
-var collection = 'collectionname';
+var collection = "collectionname";
 
 /**
  * Type 2 is a string
@@ -16,7 +16,7 @@ var processed = 0;
 var step = 10;
 var total = db[collection].count(conditions);
 
-print('Found ' + total + ' ' + collection + ' to process');
+print("Found " + total + " " + collection + " to process");
 while (processed < total) {
 	var cCursor = db[collection].find( conditions ).sort( { _id : 1 } ).limit(step);
 	while (cCursor.hasNext()) {
@@ -27,14 +27,14 @@ while (processed < total) {
 			{ _id: Row._id },
 			{ $set: {
 				geo = {
-						'longitude' : parseFloat(Row.geo.longitude),
-						'latitude' : parseFloat(Row.geo.latitude)
+						"longitude" : parseFloat(Row.geo.longitude),
+						"latitude" : parseFloat(Row.geo.latitude)
 					}
 				}
 			}
 		);
 
-		conditions['_id'] = { $gt: Row._id };
+		conditions["_id"] = { $gt: Row._id };
 	}
 	processed += step;
 	print(processed + " " + collection + " processed");

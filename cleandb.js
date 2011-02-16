@@ -8,7 +8,7 @@ var collections = db.getCollectionNames();
 
 for(var i in collections) {
 	if (collections[i].match(/(^log_|_temp_)/)) {
-		print('Dropping ' + collections[i]);
+		print("Dropping " + collections[i]);
 		db[collections[i]].drop();
 	}
 }
