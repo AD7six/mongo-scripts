@@ -33,8 +33,6 @@ while (processed < total) {
 				}
 			}
 		);
-
-		conditions["_id"] = { $gt: Row._id };
 	}
 	processed += step;
 	print(processed + " " + collection + " processed");
