@@ -44,8 +44,9 @@ function pad(str, length, dir, chr) {
 		chr = " ";
 	}
 
+	str = "" + str;
+
 	if (dir === "left") {
-		str = "" + str;
 		while (str.length < length) {
 			str = chr + str;
 		}
@@ -53,7 +54,6 @@ function pad(str, length, dir, chr) {
 	}
 
 	if (dir === "center") {
-		str = "" + str;
 		var i = 0;
 		while (str.length < length) {
 			if (i % 2) {
