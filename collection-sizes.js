@@ -10,12 +10,12 @@ print(pad("-", 30, "", "-") + '|' + pad("-", 20, "", "-"));
 var collections = db.getCollectionNames();
 var total = 0;
 for(var i in collections) {
-    if (typeof(db[collections[i]].totalSize) !== "function") {
-        continue;
-    }
-    var size = db[collections[i]].totalSize();
-    print(pad(collections[i], 30, "right") + '|' + pad(size, 20, "left"));
-    total += size;
+	if (typeof(db[collections[i]].totalSize) !== "function") {
+		continue;
+	}
+	var size = db[collections[i]].totalSize();
+	print(pad(collections[i], 30, "right") + '|' + pad(size, 20, "left"));
+	total += size;
 }
 
 print(pad("-", 30, "", "-") + '|' + pad("-", 20, "", "-"));
@@ -36,38 +36,38 @@ print(pad("-", 51, "", "-"));
  * @access public
  */
 function pad(str, length, dir, chr) {
-    if (!dir) {
-        dir = "left";
-    }
+	if (!dir) {
+		dir = "left";
+	}
 
 	if (!chr) {
-        chr = " ";
-    }
+		chr = " ";
+	}
 
-    if (dir === "left") {
-        str = "" + str;
-        while (str.length < length) {
-            str = chr + str;
-        }
-        return str;
-    }
+	if (dir === "left") {
+		str = "" + str;
+		while (str.length < length) {
+			str = chr + str;
+		}
+		return str;
+	}
 
-    if (dir === "center") {
-        str = "" + str;
+	if (dir === "center") {
+		str = "" + str;
 		var i = 0;
-        while (str.length < length) {
+		while (str.length < length) {
 			if (i % 2) {
-            	str = str + chr;
+				str = str + chr;
 			} else {
-            	str = chr + str;
+				str = chr + str;
 			}
 			i++;
-        }
-        return str;
-    }
+		}
+		return str;
+	}
 
-    while (str.length < length) {
-        str = str + chr;
-    }
-    return str;
+	while (str.length < length) {
+		str = str + chr;
+	}
+	return str;
 }
