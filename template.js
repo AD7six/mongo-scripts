@@ -2,7 +2,7 @@
  * Standard batch script
  *
  * Define the collection to run on, the general conditions, and in the middle of the loop what
- * it"s supposed to do
+ * it is supposed to do
  */
 
 var collection = "collectionname";
