@@ -5,16 +5,18 @@
  * it is supposed to do
  */
 
-var collection = "collectionname";
-var conditions ={};
+var collection = "collectionname",
+	conditions ={},
 
-var processed = 0;
-var step = 10;
-var total = db[collection].count(conditions);
+	processed = 0,
+	step = 10,
+	total = db[collection].count(conditions),
+
+	cCursor, Row;
 
 print("Found " + total + " " + collection + " to process");
 while (processed < total) {
-	var cCursor = db[collection].find( conditions ).sort( { _id : 1 } ).limit(step);
+	cCursor = db[collection].find( conditions ).sort( { _id : 1 } ).limit(step);
 	while (cCursor.hasNext()) {
 		Row = cCursor.next();
 
