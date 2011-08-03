@@ -2,16 +2,15 @@
  * Standard batch script
  *
  * Define the collection to run on, the general conditions, and the process function
- * it is supposed to do
+ * to call for each row returned from the db
  */
 
 var collection = "collectionname",
 	conditions ={},
-
-	processed = 0,
 	step = 100,
 
-	total, cCursor, Row;
+	/* Internal variables */
+	processed = 0, total, cCursor, Row;
 
 /**
  * process
