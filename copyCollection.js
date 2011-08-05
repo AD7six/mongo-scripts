@@ -8,9 +8,10 @@
  * is to do:
  * 	 mongoexport -d db -c sourcecollection | mongoimport -d db -c targetcollection --drop
  *
- * By faster here are some numbers from copying a random collection with a million rows:
+ * By faster here are some numbers from copying a random collection with a million rows (2GB of data):
  * 	running this batch, step size 100, individual inserts, duration: 1147s
  * 	running this batch, step size 100, batch inserts, duration: 1147s
+ * 	running a one line db.source.find().forEach(function(x) { db.target.insert(x); }): 1080s
  * 	using mongo export piped to mongoimport: 300s
  *
  * However, it demonstrates how to write a script which optionally  buffers db activity and "commits" once per slice
