@@ -31,7 +31,7 @@ var options = {
 };
 
 CopyCollection = new Batch(options, false);
-
+CopyCollection.name = 'CopyCollection';
 
 /**
  * process

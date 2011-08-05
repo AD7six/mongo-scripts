@@ -25,6 +25,8 @@ options = {
  * Include the contents of this file before your specific batches
  */
 Batch = function(options, run) {
+  this.name = 'Template';
+
   this.options = {
     collection: 'collectionname',
     conditions: {},
@@ -47,6 +49,9 @@ Batch = function(options, run) {
      * @return void.
      */
   this.process = function() {
+    if (this.name !== 'Template') {
+      throw new Error("You need to define the process function for your batch.");
+	}
     this.out('processing ' + this.currentRow._id, 4);
     return;
 
@@ -70,6 +75,8 @@ Batch = function(options, run) {
      * @return bool.
      */
   this.start = function() {
+    this.out('Starting ' + this.name + ' batch..', 1);
+
     try {
       total = db[this.options.collection].count(this.options.conditions);
     } catch (err) {
