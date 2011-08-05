@@ -8,12 +8,12 @@
 
 options = {
   collection: 'places',
-  fields: {geo: true}
+  fields: {geo: true},
   /**
  * Type 2 is a string
  * http://www.mongodb.org/display/DOCS/Advanced+Queries#AdvancedQueries-%24type
  */
-  //conditions: { 'geo.longitude' : {$type: 2} }
+  conditions: { 'geo.longitude' : {$type: 2} }
 };
 
 CorrectGeo = new Batch(options, false);
