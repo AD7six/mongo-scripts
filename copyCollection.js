@@ -41,7 +41,7 @@ CopyCollection.name = 'CopyCollection';
  *
  * @return void.
  */
-CopyCollection.process = function process() {
+CopyCollection.process = function() {
   this.out('processing ' + this.currentRow._id, 4);
 
   if (this.options.batchInserts) {
