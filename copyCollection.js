@@ -17,7 +17,7 @@
  * However, it demonstrates how to write a script which optionally  buffers db activity and "commits" once per slice
  * instead of one row at a time.
  *
- * Define the (source) collection to copy, the 'to' collection - and run
+ * Define the (source) collection to copy, the (target) to collection - and run
  * Can either be run a row at a time - or using batchInserts
  *
  */
@@ -25,8 +25,8 @@
 /* @IMPORTANT include source of template.js here - exclude the last line - `new Batch(options);` */
 
 var options = {
-	to: "collectionname",
-	collection: "items",
+	to: "target",
+	collection: "source",
 	batchInserts: true
 };
 
@@ -35,8 +35,8 @@ CopyCollection = new Batch(options, false);
 /**
  * process
  *
- * Main process function - What do you want to do to each row returned from the db?
- * this is the row of data from the cursor
+ * if we're in batchInsert mode - buffer the found row to the stack property
+ * else, attempt to insert into the target collection
  *
  * @return void
  */
@@ -82,8 +82,8 @@ CopyCollection.start = function() {
 /**
  * afterCursor
  *
- * Called after processing a cursor (after processing x rows). Could be used to issue buffered
- * bulk-update statements from the cursor run. Can abort further processing by returning false
+ * IF we're in batchInsert mode - insert the buffered rows
+ * Then call the original afterCursor method
  *
  * @param count $count
  * @return bool
