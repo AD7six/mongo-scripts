@@ -73,21 +73,21 @@ Batch = function(options, run) {
     this.out('Starting ' + this.name + ' batch..', 1);
 
     try {
-      total = db[this.options.collection].count(this.options.conditions);
+      this.total = db[this.options.collection].count(this.options.conditions);
     } catch (err) {
       this.out(err.message, 1);
       return false;
     }
 
-    this.out('Found ' + total + ' rows in ' + this.options.collection + ' to process', 1);
+    this.out('Found ' + this.total + ' rows in ' + this.options.collection + ' to process', 1);
 
-    if (!total) {
+    if (!this.total) {
       return true;
     }
 
     if (!this.options.step) {
-      if (total > 10000) {
-        this.options.step = Math.pow(10, total.toString().length - 3);
+      if (this.total > 10000) {
+        this.options.step = Math.pow(10, this.total.toString().length - 3);
       } else {
         this.options.step = 100;
       }
@@ -105,7 +105,7 @@ Batch = function(options, run) {
      * @return void.
      */
   this.finish = function() {
-    this.out('Found ' + total + ' rows in ' + this.options.collection + ' to process', 3);
+    this.out('Found ' + this.total + ' rows in ' + this.options.collection + ' to process', 3);
     this.out('All finished', 1);
   }
 
@@ -185,7 +185,7 @@ Batch = function(options, run) {
      * @return void.
      */
   this.processCursors = function() {
-    while (this.processed < total || total === true) {
+    while (this.processed < this.total || this.total === true) {
       if (!this.processCursor()) {
         this.out('Last slice failed - aborting further processing in processCursors', 4);
         return;
@@ -205,7 +205,7 @@ Batch = function(options, run) {
   this.run = function() {
     this.startTime = new Date().getTime();
     this.processed = 0;
-    this.total = 0;
+    this.total = this.options.total || 0;
     this.currentRow = null;
 
     if (!this.start()) {

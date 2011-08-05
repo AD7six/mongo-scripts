@@ -26,8 +26,8 @@
 
 var options = {
   to: 'target',
-  collection: 'source',
-  batchInserts: true
+  collection: 'items',
+  batchInserts: false
 };
 
 CopyCollection = new Batch(options, false);
@@ -69,14 +69,16 @@ CopyCollection.start = function() {
     return false;
   }
 
-  this.out('Dropping ' + this.options.to + ' collection', 1);
-  try {
-    db[this.options.to].drop();
-  } catch (err) {
-    out(err.message, 1);
-  }
+  if (this.total) {
+	  this.out('Dropping ' + this.options.to + ' collection', 1);
+	  try {
+		db[this.options.to].drop();
+	  } catch (err) {
+		out(err.message, 1);
+	  }
 
-  this.stack = [];
+	  this.stack = [];
+  }
 
   return true;
 };
