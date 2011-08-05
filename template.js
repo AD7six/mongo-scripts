@@ -20,7 +20,7 @@ var collection = "collectionname",
 	conditions ={},
 	fields = {_id: 1},
 	sort = { _id : 1 },
-	step = null,
+	step = 0,
 
 	/* Lower means less console output */
 	logLevel = 3,
