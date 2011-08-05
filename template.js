@@ -5,7 +5,7 @@
  * to call for each row returned from the db
  *
  * The strucure of the whole script is:
- *   mainLoop
+ *   run
  *     start
  *       processCursors (loop, find <step> rows)
  *         processCursor
@@ -189,7 +189,7 @@ Batch = function(options, run) {
     }
 
     /**
-     * mainLoop
+     * run
      *
      * Run the start function - if it returns false there's nothing to do or something wrong. stop.
      *
@@ -197,7 +197,7 @@ Batch = function(options, run) {
      *
      * @return void.
      */
-    this.mainLoop = function() {
+    this.run = function() {
       this.startTime = new Date().getTime();
       this.processed = 0;
       this.total = 0;
@@ -251,7 +251,7 @@ Batch = function(options, run) {
     }
 
 	if (typeof run === 'undefined' || run === true) {
-    	this.mainLoop();
+    	this.run();
 	}
 };
 
