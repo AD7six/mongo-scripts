@@ -22,20 +22,15 @@
  *
  */
 
-var to = "destination",
-	collection = "source",
-	conditions ={},
-	fields = {},
-	sort = { _id : 1 },
-	step = 0,
-	batchInserts = false,
-	stack = [],
+/* @IMPORTANT include source of template.js here - exclude the last line - `new Batch(options);` */
 
-	/* Lower means less console output */
-	logLevel = 3,
+var options = {
+	to: "collectionname",
+	collection: "items",
+	batchInserts: true
+};
 
-	/* Internal variables */
-	processed = 0, total, Row;
+CopyCollection = new Batch(options, false);
 
 /**
  * process
@@ -45,87 +40,42 @@ var to = "destination",
  *
  * @return void
  */
-function process() {
-	out("processing " + this.name || this.title || this._id, 4);
+CopyCollection.process = function process() {
+    this.out('processing ' + this.currentRow._id, 4);
 
-	if (batchInserts) {
-		stack.push(this);
+	if (this.options.batchInserts) {
+		this.stack.push(this.currentRow);
 	} else {
 		try{
-			db[to].insert(this);
+			db[this.options.to].insert(this.currentRow);
 		} catch (err) {
 			out(err.description, 1);
 		}
 	}
-}
+};
 
 /**
  * start
  *
- * What to do at the start of the batch. Aborts everything if it returns false
- * To create a script which runs without a limit - set the total to true. In this
- * case the script then runs until processCursor returns false
+ * Run the standard start function, then drop the destination collection
  *
  * @return bool
  */
-function start() {
-	try{
-		total = db[collection].count(conditions);
-	} catch (err) {
-		out(err.description, 1);
+CopyCollection.originalStart = CopyCollection.start;
+CopyCollection.start = function() {
+	if (!this.originalStart()) {
 		return false;
 	}
 
-	out("Found " + total + " rows in " + collection + " to process", 1);
-
-	if (!total) {
-		out("Nothing found - aborting", 3);
-		return false;
-	}
-
-	if (!step) {
-		if (batchInserts) {
-			step = 100;
-		} else {
-			if (total > 10000) {
-				step = Math.pow(10, total.toString().length - 3);
-			} else {
-				step = 100;
-			}
-		}
-		out("Step size not defined, processing in slices of " + step + " rows per cursor", 2);
-	}
-
+    this.out('Dropping ' + this.options.to + ' collection', 1);
 	try{
-		db[to].drop();
+		db[this.options.to].drop();
 	} catch (err) {
 		out(err.description, 1);
 	}
 
-	return true;
-};
+	this.stack = [];
 
-/**
- * finish
- *
- * Called at the end of the batch process
- *
- * @return void
- */
-function finish() {
-	out("Found " + total + " rows in " + collection + " to process", 3);
-	out("All finished", 1);
-};
-
-/**
- * beforeCursor
- *
- * Called before issuing a find, can abort all further processing by returning false
- *
- * @param LastRow $LastRow
- * @return bool
- */
-function beforeCursor(LastRow) {
 	return true;
 };
 
@@ -136,140 +86,21 @@ function beforeCursor(LastRow) {
  * bulk-update statements from the cursor run. Can abort further processing by returning false
  *
  * @param count $count
- * @param LastRow $LastRow
  * @return bool
  */
-function afterCursor(count, LastRow) {
-	if (batchInserts) {
+CopyCollection.originalAfterCursor = CopyCollection.afterCursor;
+CopyCollection.afterCursor = function afterCursor(count) {
+	if (this.options.batchInserts) {
+    	this.out('Bulk inserting ' + this.stack.length + ' rows into ' + this.options.to, 4);
 		try{
-			db[to].insert(stack);
+			db[this.options.to].insert(this.stack);
 		} catch (err) {
 			out(err.description, 1);
 		}
-		stack = [];
+		this.stack = [];
 	}
 
-	processed += count;
-	out(processed + " " + collection + " processed, last id: " + LastRow._id, 3);
-
-	conditions._id = {"$gt": LastRow._id};
-
-	return true;
+	return this.originalAfterCursor(count);
 };
 
-/* Shouldn't need to edit below this line */
-
-/**
- * processCursor
- *
- * Runs a query using the collection, conditions and step defined at the top of the script
- * if beforeCursor returns false - no query is performed and the whole batch process is halted
- * Otherwise, it loops on the cursor passing each row to the process function. The last
- * step for each cursor is to call afterCursor - which can also abort further processing
- * by returning false
- *
- * @return bool
- */
-function processCursor() {
-	if (!beforeCursor(Row)) {
-		out("beforeCursor returned false - aborting further processing", 4);
-		return false;
-	}
-
-	var cursor,
-		count = 0;
-
-	try {
-		cursor = db[collection].find( conditions, fields ).sort( sort ).limit( step );
-	} catch (err) {
-		out(err.description, 1);
-		return false;
-	}
-
-	while (cursor.hasNext()) {
-		Row = cursor.next();
-		process.call(Row);
-		count++;
-	}
-
-	return afterCursor(count, Row);
-}
-
-/**
- * processCursors
- *
- * Loop on all cursors until there are none left or one fails.
- *
- * @return void
- */
-function processCursors() {
-	while (processed < total || total === true) {
-		if (!processCursor()) {
-			out("Last slice failed - aborting further processing in processCursors", 4);
-			return;
-		}
-	}
-}
-
-/**
- * mainLoop
- *
- * Run the start function - if it returns false there's nothing to do or something wrong. stop.
- *
- * Else, call process cursors, and the finish function
- *
- * @return void
- */
-function mainLoop() {
-	startTime = new Date().getTime();
-
-	if (!start())  {
-		out("start returned false - aborting further processing", 1);
-		return false;
-	}
-
-	processCursors();
-
-	finish();
-}
-
-/**
- * out - wrapper for printing output
- *
- * If the msgLevel is greater than the configured logLevel - do nothing
- * Otherwise, prefix with time since the script started
- *
- * @param msg
- * @param msgLevel
- * @return void
- */
-function out(msg, msgLevel) {
-	if (msgLevel === undefined) {
-		msgLevel = 2;
-	}
-
-	if (msgLevel > logLevel) {
-		return;
-	}
-
-	var digits = 6,
-		time = (new Date().getTime() - startTime) / 1000;
-	if (time > 1000) {
-		digits = 9;
-	}
-
-	function pad(n, len) {
-		s = n.toString();
-		if (s.length < len) {
-			s = ('          ' + s).slice(-len);
-		}
-		return s;
-	}
-
-	print('[' + pad(time.toFixed(2), digits) + 's] ' + msg);
-}
-
-/**
- *  Launch main function
- */
-mainLoop();
+CopyCollection.run();
