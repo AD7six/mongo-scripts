@@ -1,7 +1,7 @@
 /**
  * Template batch script
  *
- * Include and then override at least the process function - and run
+ * call as mongo db template.js <realbatchscript.js>
  *
  * The strucure of the whole script is:
  *   run
@@ -265,9 +265,3 @@ Batch = function(options, run) {
     this.run();
   }
 };
-
-
-/**
- *  Run the batch
- */
-new Batch(options);

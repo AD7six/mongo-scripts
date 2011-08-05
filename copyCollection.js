@@ -1,6 +1,8 @@
 /**
  * Copy one collection to another
  *
+ * call as `mongo db template.js thisfile.js`
+ *
  * See http://www.mongodb.org/display/DOCS/Developer+FAQ#DeveloperFAQ-HowdoIcopyallobjectsfromonedatabasecollectiontoanother
  * Allegedly, this is the only way to do it in mongodb. Implemented as a batch script
  *
@@ -10,7 +12,7 @@
  *
  * By faster here are some numbers from copying a random collection with a million rows (2GB of data):
  *     running this batch, step size 100, individual inserts, duration: 1147s
- *     running this batch, step size 100, batch inserts, duration: 1147s
+ *     running this batch, step size 100, batch inserts, duration: 1149s
  *     running a one line db.source.find().forEach(function(x) { db.target.insert(x); }): 1080s
  *     using mongo export piped to mongoimport: 300s
  *
@@ -21,8 +23,6 @@
  * Can either be run a row at a time - or using batchInserts
  *
  */
-
-/* @IMPORTANT include source of template.js here - exclude the last line - `new Batch(options);` */
 
 var options = {
   to: 'target',
