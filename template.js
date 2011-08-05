@@ -25,7 +25,7 @@ Batch = function(options, run) {
   this.options = {
     collection: 'collectionname',
     conditions: {},
-    fields: {_id: 1},
+    fields: {},
     sort: { _id: 1 },
     step: 0,
 
