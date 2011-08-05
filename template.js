@@ -82,8 +82,7 @@ Batch = function(options, run) {
     this.out('Found ' + total + ' rows in ' + this.options.collection + ' to process', 1);
 
     if (!total) {
-      this.out('Nothing found - aborting', 4);
-      return false;
+      return true;
     }
 
     if (!this.options.step) {
