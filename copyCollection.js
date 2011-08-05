@@ -50,7 +50,7 @@ CopyCollection.process = function() {
     try {
       db[this.options.to].insert(this.currentRow);
     } catch (err) {
-      out(err.description, 1);
+      out(err.message, 1);
     }
   }
 };
@@ -73,7 +73,7 @@ CopyCollection.start = function() {
   try {
     db[this.options.to].drop();
   } catch (err) {
-    out(err.description, 1);
+    out(err.message, 1);
   }
 
   this.stack = [];
@@ -98,7 +98,7 @@ CopyCollection.afterCursor = function afterCursor(count) {
     try {
       db[this.options.to].insert(this.stack);
     } catch (err) {
-      out(err.description, 1);
+      out(err.message, 1);
     }
     this.stack = [];
   }

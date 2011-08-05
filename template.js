@@ -63,7 +63,7 @@ Batch = function(options, run) {
           }
       );
     } catch (err) {
-      this.out(err.description, 1);
+      this.out(err.message, 1);
     }
   }
 
@@ -80,7 +80,7 @@ Batch = function(options, run) {
     try {
       total = db[this.options.collection].count(this.options.conditions);
     } catch (err) {
-      this.out(err.description, 1);
+      this.out(err.message, 1);
       return false;
     }
 
@@ -170,7 +170,7 @@ Batch = function(options, run) {
             .sort(this.options.sort)
             .limit(this.options.step);
     } catch (err) {
-      this.out(err.description, 1);
+      this.out(err.message, 1);
       return false;
     }
 
