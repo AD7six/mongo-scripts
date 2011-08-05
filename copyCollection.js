@@ -27,6 +27,7 @@
 var options = {
   to: 'target',
   collection: 'items',
+  fields: {},
   batchInserts: false
 };
 
