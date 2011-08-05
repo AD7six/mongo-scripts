@@ -15,11 +15,6 @@
  *   finish
  */
 
-options = {
-  collection: 'items'
-};
-
-
 /**
  * A template batch class
  * Include the contents of this file before your specific batches
