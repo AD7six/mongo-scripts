@@ -1,8 +1,7 @@
 /**
- * Standard batch script
+ * Template batch script
  *
- * Define the collection to run on, the general conditions, and the process function
- * to call for each row returned from the db
+ * Include and then override at least the process function - and run
  *
  * The strucure of the whole script is:
  *   run
@@ -20,6 +19,10 @@ options = {
     collection: 'items',
 };
 
+/**
+ * A template batch class
+ * Include the contents of this file before your specific batches
+ */
 Batch = function(options, run) {
 	this.options = {
 		collection: 'collectionname',
@@ -44,6 +47,8 @@ Batch = function(options, run) {
      */
     this.process = function() {
       this.out('processing ' + this.currentRow._id, 4);
+	  return;
+
       try {
         db[this.options.collection].update(
             { _id: this.currentRow._id },
@@ -130,8 +135,6 @@ Batch = function(options, run) {
 
       return true;
     }
-
-    /* Shouldn't need to edit below this line */
 
     /**
      * processCursor
@@ -256,6 +259,6 @@ Batch = function(options, run) {
 };
 
 /**
- *  Launch main function
+ *  Run the batch
  */
 new Batch(options);
