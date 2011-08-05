@@ -4,8 +4,16 @@
  * See http://www.mongodb.org/display/DOCS/Developer+FAQ#DeveloperFAQ-HowdoIcopyallobjectsfromonedatabasecollectiontoanother
  * Allegedly, this is the only way to do it in mongodb. Implemented as a batch script
  *
- * This is a somewhat accademic script - if you wanted to do this you're better off using mongodump | mongoimport
- * however, it demonstrates how to write a script which optionally  buffers db activity and "commits" once per slice
+ * This is a somewhat accademic script - don't use it. if you need to copy one collection to another the fastest way
+ * is to do:
+ * 	 mongoexport -d db -c sourcecollection | mongoimport -d db -c targetcollection --drop
+ *
+ * By faster here are some numbers from copying a random collection with a million rows:
+ * 	running this batch, step size 100, individual inserts, duration: 1147s
+ * 	running this batch, step size 100, batch inserts, duration: 1147s
+ * 	using mongo export piped to mongoimport: 300s
+ *
+ * However, it demonstrates how to write a script which optionally  buffers db activity and "commits" once per slice
  * instead of one row at a time.
  *
  * Define the (source) collection to copy, the 'to' collection - and run
