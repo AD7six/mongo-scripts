@@ -3,14 +3,30 @@
  *
  * Define the collection to run on, the general conditions, and the process function
  * to call for each row returned from the db
+ *
+ * The strucure of the whole script is:
+ * 	mainLoop
+ * 	    start
+ * 	    processCursors (loop, find <step> rows)
+ * 			processCursor
+ * 				beforeCursor
+ * 				(loop, for each row)
+ * 					process
+ * 				afterCursor
+ * 	finish
  */
 
 var collection = "collectionname",
 	conditions ={},
-	step = 100,
+	fields = {_id: 1},
+	sort = { _id : 1 },
+	step = null,
+
+	/* Lower means less console output */
+	logLevel = 3,
 
 	/* Internal variables */
-	processed = 0, total, cCursor, Row;
+	processed = 0, total, Row;
 
 /**
  * process
@@ -21,13 +37,17 @@ var collection = "collectionname",
  * @return void
  */
 function process() {
-	print( "updating " + this.name || this.title || this._id);
-	db[collection].update(
-		{ _id: this._id },
-		{ $set: {
+	out("processing " + this._id, 4);
+	try{
+		db[collection].update(
+			{ _id: this._id },
+			{ $set: {
+				}
 			}
-		}
-	);
+		);
+	} catch (err) {
+		out(err.description, 1);
+	}
 }
 
 /**
@@ -38,13 +58,27 @@ function process() {
  * @return bool
  */
 function start() {
-	total = db[collection].count(conditions);
+	try{
+		total = db[collection].count(conditions);
+	} catch (err) {
+		out(err.description, 1);
+		return false;
+	}
 
-	print("Found " + total + " rows in " + collection + " to process");
+	out("Found " + total + " rows in " + collection + " to process", 1);
 
 	if (!total) {
-		print("Nothing found - aborting");
+		out("Nothing found - aborting", 4);
 		return false;
+	}
+
+	if (!step) {
+		if (total > 10000) {
+			step = Math.pow(10, total.toString().length - 3);
+		} else {
+			step = 100;
+		}
+		out("Step size not defined, processing in slices of " + step + " rows per cursor", 2);
 	}
 
 	return true;
@@ -58,8 +92,8 @@ function start() {
  * @return void
  */
 function finish() {
-	print("Found " + total + " rows in " + collection + " to process");
-	print("All finished");
+	out("Found " + total + " rows in " + collection + " to process", 3);
+	out("All finished", 1);
 };
 
 /**
@@ -86,7 +120,7 @@ function beforeCursor(LastRow) {
  */
 function afterCursor(count, LastRow) {
 	processed += count;
-	print(processed + " " + collection + " processed, last id: " + LastRow._id);
+	out(processed + " " + collection + " processed, last id: " + LastRow._id, 3);
 
 	conditions._id = {"$gt": LastRow._id};
 
@@ -108,15 +142,22 @@ function afterCursor(count, LastRow) {
  */
 function processCursor() {
 	if (!beforeCursor(Row)) {
-		print("beforeCursor returned false - aborting further processing");
+		out("beforeCursor returned false - aborting further processing", 4);
 		return false;
 	}
 
-	var cCursor = db[collection].find( conditions ).sort( { _id : 1 } ).limit(step),
+	var cursor,
 		count = 0;
 
-	while (cCursor.hasNext()) {
-		Row = cCursor.next();
+	try {
+		cursor = db[collection].find( conditions, fields ).sort( sort ).limit( step );
+	} catch (err) {
+		out(err.description, 1);
+		return false;
+	}
+
+	while (cursor.hasNext()) {
+		Row = cursor.next();
 		process.call(Row);
 		count++;
 	}
@@ -132,9 +173,9 @@ function processCursor() {
  * @return void
  */
 function processCursors() {
-	while (processed < total) {
+	while (processed < total || total === true) {
 		if (!processCursor()) {
-			print("Last slice failed - aborting further processing in processCursors");
+			out("Last slice failed - aborting further processing in processCursors", 4);
 			return;
 		}
 	}
@@ -150,14 +191,52 @@ function processCursors() {
  * @return void
  */
 function mainLoop() {
+	startTime = new Date().getTime();
+
 	if (!start())  {
-		print("start returned false - aborting further processing");
+		out("start returned false - aborting further processing", 1);
 		return false;
 	}
 
 	processCursors();
 
 	finish();
+}
+
+/**
+ * out - wrapper for printing output
+ *
+ * If the msgLevel is greater than the configured logLevel - do nothing
+ * Otherwise, prefix with time since the script started
+ *
+ * @param msg
+ * @param msgLevel
+ * @return void
+ */
+function out(msg, msgLevel) {
+	if (msgLevel === undefined) {
+		msgLevel = 2;
+	}
+
+	if (msgLevel > logLevel) {
+		return;
+	}
+
+	var digits = 6,
+		time = (new Date().getTime() - startTime) / 1000;
+	if (time > 1000) {
+		digits = 9;
+	}
+
+	function pad(n, len) {
+		s = n.toString();
+		if (s.length < len) {
+			s = ('          ' + s).slice(-len);
+		}
+		return s;
+	}
+
+	print('[' + pad(time.toFixed(2), digits) + 's] ' + msg);
 }
 
 /**
