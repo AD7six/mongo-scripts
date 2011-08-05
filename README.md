@@ -3,6 +3,10 @@ Mongo scripts
 
 Various scripts used for mongodb maintainance or data migrations
 
-Db scripts are run by:
+Standalone scripts are run by:
 
 	mongo [args] dbname jsfile.js
+
+Batch scripts are run by:
+
+	mongo [args] dbname template.js jsfile.js
