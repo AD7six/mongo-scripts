@@ -26,5 +26,5 @@ print(collection + " keys:");
 db[mr.result]
 	.find()
 	.forEach(function(row) {
-		print(row._id);
+		print("\t" + row._id);
 	} );
