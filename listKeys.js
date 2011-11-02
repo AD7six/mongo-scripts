@@ -1,20 +1,30 @@
 /**
  * What are all the keys used in the collection "things" ?
  *
- * Taken from http://stackoverflow.com/questions/2298870/mongodb-get-names-of-all-keys-in-collection
+ * Adapted from http://stackoverflow.com/questions/2298870/mongodb-get-names-of-all-keys-in-collection
  */
+collection = "things";
 
 mr = db.runCommand({
-	"mapreduce" : "things",
+	"mapreduce" : collection,
 	"map" : function() {
-		for (var key in this) { 
+		var key;
+
+		for (key in this) { 
 			emit(key, null);
 		}
 	},
-   "out": {replace: "keys"},
+   "out": {replace: collection + "Keys"},
    "reduce" : function(key, stuff) { 
 	   return null;
    }
 });
 
-print(db[mr.result].distinct("_id"));
+print();
+print(collection + " keys:");
+
+db[mr.result]
+	.find()
+	.forEach(function(row) {
+		print(row._id);
+	} );
