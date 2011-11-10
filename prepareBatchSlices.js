@@ -33,7 +33,7 @@ PrepareBatchSlices.process = function() {
  
   this.out('processing ' + this.currentRow._id, 4);
 
-  slice = ('  ' + this.currentRow._id).substr(-2, 2);
+  slice = ('00' + this.currentRow._id).substr(-2, 2);
   try {
     db[this.options.collection].update(
         { _id: this.currentRow._id },
