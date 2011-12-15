@@ -3,14 +3,16 @@
  *
  * Prints in a tabular format
  */
-print(pad("-", 72, "", "-"));
-print(pad(db + " collections", 30, "center") + '|' + pad("Count", 20, "center") + '|' + pad("Size (Bytes)", 20, "center"));
-print(pad("-", 30, "", "-") + '|' + pad("-", 20, "", "-") + '|' + pad("-", 20, "", "-"));
 
 var i, size, count,
 	collections = db.getCollectionNames();
 	totalCount = 0,
 	totalSize = 0;
+
+print(renderLine('wrap'));
+print(renderLine('header', db + " collections", "Count", "Size (Bytes)"));
+print(renderLine('divider'));
+
 for(i in collections) {
 	if (typeof(db[collections[i]].totalSize) !== "function") {
 		continue;
@@ -18,14 +20,41 @@ for(i in collections) {
 	count = db[collections[i]].count();
 	size = db[collections[i]].totalSize();
 
-	print(pad(collections[i], 30, "right") + '|' + pad(count, 20, "left") + '|' + pad(size, 20, "left"));
+	print(renderLine('data', collections[i], count, size));
+
 	totalCount += count;
 	totalSize += size;
 }
 
-print(pad("-", 30, "", "-") + '|' + pad("-", 20, "", "-") + '|' + pad("-", 20, "", "-"));
-print(pad("Total:", 30, "right") + '|' + pad(totalCount, 20, "left") + '|' + pad(totalSize, 20, "left"));
-print(pad("-", 72, "", "-"));
+print(renderLine('divider'));
+print(renderLine('data', 'Totals:', totalCount, totalSize));
+print(renderLine('wrap'));
+
+/**
+ * A helper function to Render a line of the table
+ *
+ * @param type $type data, divider or wrap
+ * @param one $one
+ * @param two $two
+ * @param three $three
+ *
+ * @return a string
+ */
+function renderLine(type, one, two, three) {
+	var line = '';
+
+	if (type === 'data') {
+		line = '| ' + pad(one, 36, "right") + ' | ' + pad(two, 14, "left") + ' | ' + pad(three, 20, "left") + ' |';
+	} else if (type === 'header') {
+		line = '| ' + pad(one, 36, "center") + ' | ' + pad(two, 14, "center") + ' | ' + pad(three, 20, "center") + ' |';
+	} else if (type === 'divider') {
+		line = renderLine('data', '', '', '').replace(/ /g, '-');
+	} else if (type === 'wrap') {
+		line = renderLine('data', '', '', '').replace(/./g, '-');
+	}
+
+	return line;
+}
 
 /**
  * Pad the input string to the specified length
