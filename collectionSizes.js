@@ -41,19 +41,21 @@ print(renderLine('wrap'));
  * @return a string
  */
 function renderLine(type, one, two, three) {
-	var line = '';
+	var line = '',
+		widths = [36, 14, 20],
+		padding = ['right', 'left', 'left'];
 
-	if (type === 'data') {
-		line = '| ' + pad(one, 36, "right") + ' | ' + pad(two, 14, "left") + ' | ' + pad(three, 20, "left") + ' |';
-	} else if (type === 'header') {
-		line = '| ' + pad(one, 36, "center") + ' | ' + pad(two, 14, "center") + ' | ' + pad(three, 20, "center") + ' |';
-	} else if (type === 'divider') {
-		line = renderLine('data', '', '', '').replace(/ /g, '-');
-	} else if (type === 'wrap') {
-		line = renderLine('data', '', '', '').replace(/./g, '-');
+	if (type === 'divider') {
+		return renderLine('data', '', '', '').replace(/ /g, '-');
+	}
+	if (type === 'wrap') {
+		return renderLine('data', '', '', '').replace(/./g, '-');
 	}
 
-	return line;
+	if (type === 'header') {
+		padding = ['center', 'center', 'center'];
+	}
+	return '| ' + pad(one, widths[0], padding[0]) + ' | ' + pad(two, widths[1], padding[1]) + ' | ' + pad(three, widths[2], padding[2]) + ' |';
 }
 
 /**
