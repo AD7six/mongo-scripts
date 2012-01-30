@@ -1,7 +1,10 @@
 /**
  * loop on all collections and output their counts and size in bytes.
  *
- * Prints in a tabular format
+ * Prints in a tabular format.
+ *
+ * Call as:
+ * 	$ mongo <databasename> collectionSizes.js
  */
 
 var i, size, count,
